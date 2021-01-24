@@ -110,4 +110,4 @@ boot_disk db 0x00
 times 510 - ($ - $$) db 0
 dw 0xAA55 ; Signature
 
-%include "bldr_stg2.asm"
+%include "boot_stg2.asm"
