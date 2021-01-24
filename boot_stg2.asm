@@ -6,8 +6,8 @@ bits 32
 
 second_stage:
 	mov al, 0x0FF
-    out 0x0A1, al
-    out 0x021, al ; Mask 8259A
+	out 0x0A1, al
+	out 0x021, al ; Mask 8259A
 	mov esi, KRNL_MEM_BASE ; Address of kernel in memory
 	jmp pe_load ; Load kernel PE binary
 
