@@ -1,7 +1,6 @@
-%define TEXT_BUFFER 0x000B8000 ; Text buffer address
-
 bits 32
 
+%define TEXT_BUFFER 0x000B8000 ; Text buffer address
 %include "peldr32.asm"
 
 second_stage:
