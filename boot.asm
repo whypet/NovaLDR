@@ -64,18 +64,18 @@ cls: ; A simple "workaround" that just sets a video mode and it clears the scree
 a20:
 	push ax
 	in al, 0x92
-    or al, 0x02
-    out 0x92, al
+	or al, 0x02
+	out 0x92, al
 	pop ax
 	ret
 
 ; Structures
 dap: ; Disk Address Packet
-    db 16                                    ; DAP is 16 bytes long
-    db 0x00                                  ; Unused byte
-    dw STAGE2_SECTOR_SIZE + KRNL_SECTOR_SIZE ; Amount of sectors
-    dw 0x0000, STAGE2_MEM_BASE >> 4          ; Write to STAGE2_MEM_BASE:0x0000
-    dq 1                                     ; Second sector
+	db 16                                    ; DAP is 16 bytes long
+	db 0x00                                  ; Unused byte
+	dw STAGE2_SECTOR_SIZE + KRNL_SECTOR_SIZE ; Amount of sectors
+	dw 0x0000, STAGE2_MEM_BASE >> 4          ; Write to STAGE2_MEM_BASE:0x0000
+	dq 1                                     ; Second sector
 
 gdt: ; Global Descriptor Table
 	.start:
