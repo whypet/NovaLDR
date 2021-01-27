@@ -52,20 +52,22 @@ pe_load: ; ESI = Address of binary in memory
 	; Zero VirtualSize amount of bytes at the image base in the current section header
 	mov ecx, dword [ebx+SectionHeader+VirtualSize]
 	mov edi, dword [ebx+SectionHeader+VirtualAddress]
-	xor al, al
 	pushad
+	xor al, al
 	rep stosb
 	popad
 
 	; Copy raw data to image base
 	mov ecx, dword [ebx+SectionHeader+SizeOfRawData]
 	add edi, dword [ebx+NtOptionalHeader+ImageBase]
+	push esi
 	add esi, dword [ebx+SectionHeader+PointerToRawData]
 	rep movsb
+	pop esi
 
 	add edx, SizeOfSectionHeader ; Go to next section and check if we reached the last section
 	cmp edx, eax
-	jg .end
+	jge .end
 	jmp .load_section
 .error:
 	mov esi, pe_error
