@@ -8,7 +8,6 @@ org 0x7C00 ; Set image base
 %define KRNL_SECTOR_SIZE   64                                 ; Kernel size in sectors
 %define BLDR_SIZE          512 + STAGE2_SECTOR_SIZE * 512     ; Size of bootloader binary
 %define BINARY_SIZE        BLDR_SIZE + KRNL_SECTOR_SIZE * 512 ; Size of binary
-%define TEXT_BUFFER        0x000B8000 ; Text buffer address
 
 xor ax, ax
 mov ds, ax
