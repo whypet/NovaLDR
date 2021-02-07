@@ -26,14 +26,22 @@
 
 ; Loads a PE binary located at address KRNL_MEM_BASE into memory.
 pe_load: ; ESI = Address of binary in memory
-	; Check if base contains the right binary with MZ signature
+	; Check if binary has MZ magic number
 	mov ax, word [esi+e_magic]
 	cmp ax, 0x5A4D
-	jne .error
-	
+	jne .non_pe_error
+
 	; Get NT headers offset
 	mov ebx, dword [esi+e_lfanew]
 	add ebx, esi
+
+	; Checking for 'PE\0\0' signature
+    cmp dword [ebx], 0x00004550
+    jne .dos_pe_error
+	
+	; Checking for Intel 386 machine ID
+    cmp word [ebx+NtFileHeader], 0x014C
+    jne .non_i386_error
 
 	; Copy headers
 	mov ecx, dword [ebx+NtOptionalHeader+SizeOfHeaders]
@@ -47,30 +55,47 @@ pe_load: ; ESI = Address of binary in memory
 	mov eax, SizeOfSectionHeader
 	imul eax, edx
 	xor edx, edx
-.load_section:
+
 %define SectionHeader edx+SizeOfNtHeaders
-	; Zero VirtualSize amount of bytes at the image base in the current section header
-	mov ecx, dword [ebx+SectionHeader+VirtualSize]
-	mov edi, dword [ebx+SectionHeader+VirtualAddress]
+	mov esi, KRNL_MEM_BASE
+	mov edi, dword [ebx+NtOptionalHeader+ImageBase]
+.load_section:
+	; Copy raw data to image base
 	pushad
+	mov ecx, dword [ebx+SectionHeader+SizeOfRawData]
+	add esi, dword [ebx+SectionHeader+PointerToRawData]
+	add edi, dword [ebx+SectionHeader+VirtualAddress]
+
+	; Check if virtual size is smaller than raw data size
+	cmp ecx, [ebx+SectionHeader+VirtualSize]
+	jge .virtual_smaller
+	rep movsb
+
+	; Pad the remainder of virtual size with zeros
+	mov ecx, dword [ebx+SectionHeader+VirtualSize]
+	sub ecx, dword [ebx+SectionHeader+SizeOfRawData]
 	xor al, al
 	rep stosb
+	jmp .next_section
+.virtual_smaller:
+	; Copy virtual size amount of bytes instead
+    mov ecx, [ebx+SectionHeader+VirtualSize]
+    rep movsb
+.next_section:
 	popad
-
-	; Copy raw data to image base
-	mov ecx, dword [ebx+SectionHeader+SizeOfRawData]
-	add edi, dword [ebx+NtOptionalHeader+ImageBase]
-	push esi
-	add esi, dword [ebx+SectionHeader+PointerToRawData]
-	rep movsb
-	pop esi
-
 	add edx, SizeOfSectionHeader ; Go to next section and check if we reached the last section
 	cmp edx, eax
 	jge .end
 	jmp .load_section
+.non_pe_error:
+	mov esi, msg_non_pe
+	jmp .error
+.dos_pe_error:
+	mov esi, msg_dos_pe
+	jmp .error
+.non_i386_error:
+	mov esi, msg_non_i386
 .error:
-	mov esi, pe_error
 	xor edi, edi
 	mov ah, 0x0C
 	call print32 ; Print error message
@@ -81,5 +106,7 @@ pe_load: ; ESI = Address of binary in memory
 	add eax, dword [ebx+NtOptionalHeader+AddressOfEntryPoint]
 	jmp eax
 
-; Error message
-pe_error db "PE loader error: You specified the wrong memory address,", 0x0A, "or you put your binary at the wrong location!", 0x00
+; Error messages
+msg_non_pe db "PE loader error: The specified address does not have a PE binary.", 0x0A, "(Magic number MZ was not present)", 0x00
+msg_dos_pe db "PE loader error: The binary is a DOS MZ executable. (No PE signature)", 0x00
+msg_non_i386 db "PE loader error: The PE binary is not an Intel 386 binary.", 0x00
