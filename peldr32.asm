@@ -36,12 +36,12 @@ pe_load: ; ESI = Address of binary in memory
 	add ebx, esi
 
 	; Checking for 'PE\0\0' signature
-    cmp dword [ebx], 0x00004550
-    jne .dos_pe_error
+	cmp dword [ebx], 0x00004550
+	jne .dos_pe_error
 	
 	; Checking for Intel 386 machine ID
-    cmp word [ebx+NtFileHeader], 0x014C
-    jne .non_i386_error
+	cmp word [ebx+NtFileHeader], 0x014C
+	jne .non_i386_error
 
 	; Copy headers
 	mov ecx, dword [ebx+NtOptionalHeader+SizeOfHeaders]
@@ -79,8 +79,8 @@ pe_load: ; ESI = Address of binary in memory
 	jmp .next_section
 .virtual_smaller:
 	; Copy virtual size amount of bytes instead
-    mov ecx, [ebx+SectionHeader+VirtualSize]
-    rep movsb
+	mov ecx, [ebx+SectionHeader+VirtualSize]
+	rep movsb
 .next_section:
 	popad
 	add edx, SizeOfSectionHeader ; Go to next section and check if we reached the last section
