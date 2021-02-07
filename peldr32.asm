@@ -57,8 +57,6 @@ pe_load: ; ESI = Address of binary in memory
 	xor edx, edx
 
 %define SectionHeader edx+SizeOfNtHeaders
-	mov esi, KRNL_MEM_BASE
-	mov edi, dword [ebx+NtOptionalHeader+ImageBase]
 .load_section:
 	; Copy raw data to image base
 	pushad
@@ -81,6 +79,7 @@ pe_load: ; ESI = Address of binary in memory
 	; Copy virtual size amount of bytes instead
 	mov ecx, [ebx+SectionHeader+VirtualSize]
 	rep movsb
+%undef SectionHeader
 .next_section:
 	popad
 	add edx, SizeOfSectionHeader ; Go to next section and check if we reached the last section
