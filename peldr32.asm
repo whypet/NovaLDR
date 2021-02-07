@@ -56,8 +56,8 @@ pe_load: ; ESI = Address of binary in memory
 	imul eax, edx
 	xor edx, edx
 
-%define SectionHeader edx+SizeOfNtHeaders
 .load_section:
+%define SectionHeader edx+SizeOfNtHeaders
 	; Copy raw data to image base
 	pushad
 	mov ecx, dword [ebx+SectionHeader+SizeOfRawData]
