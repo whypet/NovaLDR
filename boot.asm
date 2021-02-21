@@ -54,7 +54,7 @@ load:
 
 cls: ; A simple "workaround" that just sets a video mode and it clears the screen.
 	push ax
-	mov ah, 0x00 ; Set video mode function
+	xor ah, ah ; Set video mode function (0x00)
 	mov al, 0x03 ; Text mode, 80x25, 16 colors
 	int 0x10
 	pop ax
