@@ -10,7 +10,9 @@ second_stage:
 	mov esi, KRNL_MEM_BASE ; Address of kernel in memory
 	jmp pe_load ; Load kernel PE binary
 
-; ESI = String to print, EDI = Offset in text buffer, AH = Color
+; ESI = String to print
+; EDI = Offset in text buffer
+; AH  = Color
 print32:
 	pushad
 	xor edx, edx
