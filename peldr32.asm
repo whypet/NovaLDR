@@ -25,7 +25,8 @@
 %define PointerToRawData    0x14
 
 ; Loads a PE binary located at address KRNL_MEM_BASE into memory.
-pe_load: ; ESI = Address of binary in memory
+; ESI = Kernel PE binary location
+pe_load:
 	; Check if binary has MZ magic number
 	mov ax, word [esi+e_magic]
 	cmp ax, 0x5A4D
