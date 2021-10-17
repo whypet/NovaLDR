@@ -106,7 +106,7 @@ gdt: ; Global Descriptor Table
 ; Data
 boot_disk db 0x00
 
-times 510 - ($ - $$) db 0
-dw 0xAA55 ; Signature
+times 510 - ($ - $$) db 0 ; Pad remaining bytes with zeros until 510 bytes
+dw 0xAA55                 ; 2-byte MBR signature
 
 %include "boot_stg2.asm"
